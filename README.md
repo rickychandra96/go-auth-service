@@ -8,14 +8,14 @@ Golang authentication service dengan JWT dan OAuth2 - project pembelajaran untuk
 - ✅ JWT-based authentication (access token + refresh token)
 - ✅ Password hashing dengan bcrypt
 - ⏳ OAuth2 integration (Google, GitHub)
-- ✅ PostgreSQL database dengan GORM
+- ✅ PostgreSQL database dengan pgx (native driver)
 - ✅ Standard library HTTP (no framework - untuk belajar fundamental)
 - ✅ Clean architecture (handler → service → repository)
 
 ## Tech Stack
 
 - **Go 1.25**
-- **Database:** PostgreSQL + GORM
+- **Database:** PostgreSQL + pgx/v5 (native driver with connection pooling)
 - **Authentication:** JWT (golang-jwt/jwt)
 - **Password:** bcrypt
 - **Config:** godotenv
@@ -170,13 +170,22 @@ go build -o bin/api cmd/api/main.go
 - [x] Project setup & dependencies
 - [x] Configuration management
 - [x] Domain models (User, RefreshToken)
-- [ ] Database connection & migrations
-- [ ] JWT utilities
-- [ ] Password utilities
-- [ ] Repository layer
-- [ ] Service layer
-- [ ] HTTP handlers
-- [ ] Middleware
-- [ ] Main application
+- [x] Database connection & migrations (pgx/v5 with connection pooling)
+- [x] JWT utilities (access + refresh tokens)
+- [x] Password utilities (bcrypt hashing)
+- [x] Repository layer (UserRepository with pgx)
+- [ ] Service layer (AuthService)
+- [ ] HTTP handlers (AuthHandler)
+- [ ] Middleware (JWT auth middleware)
+- [ ] Main application (HTTP server setup)
 - [ ] OAuth2 integration
 - [ ] Docker setup
+
+### Recent Updates
+
+**Dec 30, 2024** - Migrated from GORM to pgx/v5
+- Replaced GORM ORM with pgx native PostgreSQL driver
+- Implemented connection pooling for better performance
+- Created repository layer with native SQL queries
+- Added database initialization with health check
+- Soft delete implementation in User model
