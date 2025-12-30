@@ -2,27 +2,36 @@ package database
 
 import (
 	"auth-service/internal/config"
-	"auth-service/internal/domain"
+	"context"
+	"fmt"
 
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func InitDB(cfg *config.Config) (*gorm.DB, error) {
+// InitDB creates a new database connection pool
+func InitDB(cfg *config.Config) (*pgxpool.Pool, error) {
+	// Build connection string
 	dsn := cfg.Database.GetDSN()
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
-	})
-
-	return db, err
-}
-
-func AutoMigrate(db *gorm.DB) error {
-	err := db.AutoMigrate(&domain.User{}, &domain.RefreshToken{})
+	// Parse config
+	poolConfig, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("unable to parse database config: %w", err)
 	}
-	return nil
+
+	// Configure pool settings
+	poolConfig.MaxConns = 25
+	poolConfig.MinConns = 5
+
+	// Create connection pool
+	pool, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
+	if err != nil {
+		return nil, fmt.Errorf("unable to create connection pool: %w", err)
+	}
+
+	if err := pool.Ping(context.Background()); err != nil {
+		return nil, fmt.Errorf("unable to ping database: %w", err)
+	}
+
+	return pool, nil
 }

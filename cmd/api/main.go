@@ -9,15 +9,14 @@ import (
 func main() {
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to load config: %v", err)
 	}
 
 	db, err := database.InitDB(cfg)
 	if err != nil {
-		log.Fatal("Error initializing database")
+		log.Fatalf("Failed to initialize database: %v", err)
 	}
+	defer db.Close()
 
-	if err := database.AutoMigrate(db); err != nil {
-		log.Fatalf("Error initializing database: %v", err)
-	}
+	log.Println("Database connected successfully!")
 }

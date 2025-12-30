@@ -4,30 +4,27 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 type RefreshToken struct {
-	ID        uuid.UUID      `gorm:"type:uuid;primaryKey" json:"id"`
-	UserID    uuid.UUID      `gorm:"type:uuid;not null;index" json:"user_id"`
-	User      User           `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"-"`
-	Token     string         `gorm:"uniqueIndex;not null" json:"token"`
-	ExpiresAt time.Time      `gorm:"not null" json:"expires_at"`
-	IsRevoked bool           `gorm:"default:false" json:"is_revoked"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+	ID        uuid.UUID  `json:"id"`
+	UserID    uuid.UUID  `json:"user_id"`
+	User      User       `json:"-"`
+	Token     string     `json:"token"`
+	ExpiresAt time.Time  `json:"expires_at"`
+	IsRevoked bool       `json:"is_revoked"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	DeletedAt *time.Time `json:"-"`
 }
 
-func (rt *RefreshToken) BeforeCreate(tx *gorm.DB) error {
+func (rt *RefreshToken) BeforeCreate() {
 	if rt.ID == uuid.Nil {
 		rt.ID = uuid.New()
 	}
-	return nil
-}
-
-func (*RefreshToken) TableName() string {
-	return "refresh_tokens"
+	rt.CreatedAt = time.Now()
+	rt.UpdatedAt = time.Now()
+	rt.IsRevoked = false
 }
 
 // IsExpired Helper method untuk cek apakah token sudah expired
